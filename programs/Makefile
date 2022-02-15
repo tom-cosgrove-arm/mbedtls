@@ -84,6 +84,7 @@ APPS = \
 	hash/generic_sum \
 	hash/hello \
 	hash/md_hmac_demo \
+	perf/perf_sha256 \
 	pkey/dh_client \
 	pkey/dh_genprime \
 	pkey/dh_server \
@@ -214,6 +215,10 @@ hash/hello$(EXEXT): hash/hello.c $(DEP)
 hash/md_hmac_demo$(EXEXT): hash/md_hmac_demo.c $(DEP)
 	echo "  CC    hash/md_hmac_demo.c"
 	$(CC) $(LOCAL_CFLAGS) $(CFLAGS) hash/md_hmac_demo.c    $(LOCAL_LDFLAGS) $(LDFLAGS) -o $@
+
+perf/perf_sha256$(EXEXT): perf/perf_sha256.c $(DEP)
+	echo "  CC    perf/perf_sha256.c"
+	$(CC) $(LOCAL_CFLAGS) $(CFLAGS) perf/perf_sha256.c $(LOCAL_LDFLAGS) $(LDFLAGS) -o $@
 
 pkey/dh_client$(EXEXT): pkey/dh_client.c $(DEP)
 	echo "  CC    pkey/dh_client.c"
