@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
     const int *list;
 #if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     unsigned char *context_buf = NULL;
-    size_t context_buf_len;
+    size_t context_buf_len = 0;
 #endif
     unsigned char eap_tls_keymaterial[16];
     unsigned char eap_tls_iv[8];

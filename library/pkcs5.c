@@ -459,10 +459,10 @@ static const unsigned char result_key_test_data[MAX_TESTS][32] =
 
 int mbedtls_pkcs5_self_test(int verbose)
 {
-    int ret, i;
+    int ret = 0;
     unsigned char key[64];
 
-    for (i = 0; i < MAX_TESTS; i++) {
+    for (int i = 0; i < MAX_TESTS; i++) {
         if (verbose != 0) {
             mbedtls_printf("  PBKDF2 (SHA1) #%d: ", i);
         }
