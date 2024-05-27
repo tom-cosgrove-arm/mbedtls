@@ -94,11 +94,35 @@ psa_status_t psa_crypto_call(psa_msg_t msg)
 
     int func = msg.type;
 
-    /* XXX TODO: fill in in_params and out_params, using msg */
+    /* We only expect a single input buffer, with everything serialised in it */
+    if (msg.in_size[1] != 0 || msg.in_size[2] != 0 || msg.in_size[3] != 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    /* We expect exactly 2 output buffers, one for size, the other for data */
+    if (msg.out_size[0] != sizeof(size_t) || msg.out_size[1] == 0 ||
+        msg.out_size[2] != 0 || msg.out_size[3] != 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    /* XXX TODO: fill in out_params, using msg */
     uint8_t *in_params = NULL;
     size_t in_params_len = 0;
     uint8_t **out_params = NULL;
     size_t *out_params_len = 0;
+
+    in_params_len = msg.in_size[0];
+    in_params = malloc(in_params_len);
+    if (in_params == NULL) {
+        return PSA_ERROR_INSUFFICIENT_MEMORY;
+    }
+
+    /* Read the bytes from the client */
+    size_t actual = psa_read(msg.handle, 0, in_params, in_params_len);
+    if (actual != in_params_len) {
+        free(in_params);
+        return PSA_ERROR_CORRUPTION_DETECTED;
+    }
 
     switch (func) {
         case PSA_CRYPTO_INIT:
@@ -120,6 +144,8 @@ EOF
 
     print $fh <<EOF;
     }
+
+    free(in_params);
 
     return ok ? PSA_SUCCESS : PSA_ERROR_GENERIC_ERROR;
 }
