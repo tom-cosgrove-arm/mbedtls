@@ -146,9 +146,9 @@ EOF
 
     free(in_params);
 
-    if (out_params_len > msg.out_size[2]) {
+    if (out_params_len > msg.out_size[1]) {
         fprintf(stderr, "unable to write %zu bytes into buffer of %zu bytes\\n",
-                out_params_len, msg.out_size[2]);
+                out_params_len, msg.out_size[1]);
         exit(1);
     }
 
