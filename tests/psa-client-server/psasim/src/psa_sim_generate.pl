@@ -105,7 +105,6 @@ psa_status_t psa_crypto_call(psa_msg_t msg)
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    /* XXX TODO: fill in out_params, using msg */
     uint8_t *in_params = NULL;
     size_t in_params_len = 0;
     uint8_t *out_params = NULL;
@@ -146,6 +145,22 @@ EOF
     }
 
     free(in_params);
+
+    if (out_params_len > msg.out_size[2]) {
+        fprintf(stderr, "unable to write %zu bytes into buffer of %zu bytes\\n",
+                out_params_len, msg.out_size[2]);
+        exit(1);
+    }
+
+    /* Write the exact amount of data we're returning */
+    psa_write(msg.handle, 0, &out_params_len, sizeof(out_params_len));
+
+    /* And write the data itself */
+    if (out_params_len) {
+        psa_write(msg.handle, 1, out_params, out_params_len);
+    }
+
+    free(out_params);
 
     return ok ? PSA_SUCCESS : PSA_ERROR_GENERIC_ERROR;
 }
