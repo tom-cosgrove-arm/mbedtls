@@ -108,8 +108,8 @@ psa_status_t psa_crypto_call(psa_msg_t msg)
     /* XXX TODO: fill in out_params, using msg */
     uint8_t *in_params = NULL;
     size_t in_params_len = 0;
-    uint8_t **out_params = NULL;
-    size_t *out_params_len = 0;
+    uint8_t *out_params = NULL;
+    size_t out_params_len = 0;
 
     in_params_len = msg.in_size[0];
     in_params = malloc(in_params_len);
@@ -137,7 +137,7 @@ EOF
         print $fh <<EOF;
         case $enum:
             ok = ${function}_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
 EOF
     }
@@ -520,7 +520,9 @@ EOF
     print $fh <<EOF;
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;

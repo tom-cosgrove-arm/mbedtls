@@ -50,7 +50,9 @@ int psa_hash_abort_wrapper(
         psasim_serialise_psa_hash_operation_t_needs(operation);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -125,7 +127,9 @@ int psa_hash_clone_wrapper(
         psasim_serialise_psa_hash_operation_t_needs(target_operation);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -208,7 +212,9 @@ int psa_hash_compare_wrapper(
         psasim_serialise_psa_status_t_needs(status);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -295,7 +301,9 @@ int psa_hash_compute_wrapper(
         psasim_serialise_size_t_needs(hash_length);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -385,7 +393,9 @@ int psa_hash_finish_wrapper(
         psasim_serialise_size_t_needs(hash_length);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -470,7 +480,9 @@ int psa_hash_setup_wrapper(
         psasim_serialise_psa_hash_operation_t_needs(operation);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -546,7 +558,9 @@ int psa_hash_update_wrapper(
         psasim_serialise_psa_hash_operation_t_needs(operation);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -622,7 +636,9 @@ int psa_hash_verify_wrapper(
         psasim_serialise_psa_hash_operation_t_needs(operation);
 
     result = malloc(result_size);
-    if (result == NULL) goto fail;
+    if (result == NULL) {
+        goto fail;
+    }
 
     uint8_t *rpos = result;
     size_t rremain = result_size;
@@ -673,8 +689,8 @@ psa_status_t psa_crypto_call(psa_msg_t msg)
     /* XXX TODO: fill in out_params, using msg */
     uint8_t *in_params = NULL;
     size_t in_params_len = 0;
-    uint8_t **out_params = NULL;
-    size_t *out_params_len = 0;
+    uint8_t *out_params = NULL;
+    size_t out_params_len = 0;
 
     in_params_len = msg.in_size[0];
     in_params = malloc(in_params_len);
@@ -696,35 +712,35 @@ psa_status_t psa_crypto_call(psa_msg_t msg)
             break;
         case PSA_HASH_ABORT:
             ok = psa_hash_abort_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_CLONE:
             ok = psa_hash_clone_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_COMPARE:
             ok = psa_hash_compare_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_COMPUTE:
             ok = psa_hash_compute_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_FINISH:
             ok = psa_hash_finish_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_SETUP:
             ok = psa_hash_setup_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_UPDATE:
             ok = psa_hash_update_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
         case PSA_HASH_VERIFY:
             ok = psa_hash_verify_wrapper(in_params, in_params_len,
-                                     out_params, out_params_len);
+                                     &out_params, &out_params_len);
             break;
     }
 
