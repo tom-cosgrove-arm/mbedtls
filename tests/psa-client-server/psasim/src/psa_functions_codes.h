@@ -9,7 +9,9 @@
 #define  _PSA_FUNCTIONS_CODES_H_
 
 enum {
-    PSA_CRYPTO_INIT = 0x00,
+    /* Start here to avoid overlap with PSA_IPC_CONNECT, PSA_IPC_DISCONNECT
+     * and VERSION_REQUEST */
+    PSA_CRYPTO_INIT = 100,
     PSA_HASH_ABORT,
     PSA_HASH_CLONE,
     PSA_HASH_COMPARE,
