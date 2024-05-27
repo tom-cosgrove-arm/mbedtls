@@ -162,7 +162,7 @@ int psasim_serialise_int(uint8_t **pos, size_t *remaining, int value)
 
 int psasim_deserialise_int(uint8_t **pos, size_t *remaining, int *value)
 {
-    if (*remaining < sizeof(value)) {
+    if (*remaining < sizeof(*value)) {
         return 0;
     }
 
@@ -223,7 +223,7 @@ int psasim_serialise_size_t(uint8_t **pos, size_t *remaining, size_t value)
 
 int psasim_deserialise_size_t(uint8_t **pos, size_t *remaining, size_t *value)
 {
-    if (*remaining < sizeof(value)) {
+    if (*remaining < sizeof(*value)) {
         return 0;
     }
 
@@ -346,7 +346,7 @@ int psasim_serialise_psa_hash_operation_t(uint8_t **pos, size_t *remaining, psa_
 
 int psasim_deserialise_psa_hash_operation_t(uint8_t **pos, size_t *remaining, psa_hash_operation_t *value)
 {
-    if (*remaining < sizeof(value)) {
+    if (*remaining < sizeof(*value)) {
         return 0;
     }
 
