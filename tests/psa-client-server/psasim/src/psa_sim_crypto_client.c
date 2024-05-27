@@ -61,7 +61,8 @@ int psa_crypto_call(int function,
         return 0;
     }
 
-    // TODO: put the returned data from psa_call into out_params/out_params_len
+    *out_params = receive;
+    *out_params_len = actual_received;
 
     return 1;   // success
 }
