@@ -24,7 +24,7 @@
 #define CLIENT_PRINT(fmt, ...) \
     PRINT("Client: " fmt, ##__VA_ARGS__)
 
-psa_handle_t handle = -1;
+static psa_handle_t handle = -1;
 
 int psa_crypto_call(int function,
                     uint8_t *in_params, size_t in_params_len,
