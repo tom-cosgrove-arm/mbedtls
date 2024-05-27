@@ -7,6 +7,9 @@ use Data::Dumper;
 my %functions = get_functions();
 my @functions = sort keys %functions;
 
+# We'll do psa_crypto_init() first
+put_crypto_init_first(\@functions);
+
 write_function_codes("psa_functions_codes.h");
 
 write_client_calls("psa_sim_crypto_client.c");
@@ -40,9 +43,11 @@ EOF
 
     for my $function (@functions) {
         my $enum = uc($function);
-        print $fh <<EOF;
+        if ($enum ne "PSA_CRYPTO_INIT") {
+            print $fh <<EOF;
     $enum,
 EOF
+        }
     }
 
     print $fh <<EOF;
@@ -63,8 +68,11 @@ sub write_client_calls
     print $fh client_calls_header();
 
     for my $function (@functions) {
-        my $f = $functions{$function};
-        output_client($fh, $f, $function);
+        # psa_crypto_init() is hand written to establish connection to server
+        if ($function ne "psa_crypto_init") {
+            my $f = $functions{$function};
+            output_client($fh, $f, $function);
+        }
     }
 
     close($fh);
@@ -90,7 +98,6 @@ sub write_server_implementations
 psa_status_t psa_crypto_call(psa_msg_t msg)
 {
     int ok = 0;
-    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
     int func = msg.type;
 
@@ -124,10 +131,6 @@ psa_status_t psa_crypto_call(psa_msg_t msg)
     }
 
     switch (func) {
-        case PSA_CRYPTO_INIT:
-            status = psa_crypto_init();
-            ok = (status == PSA_SUCCESS);
-            break;
 EOF
 
     for my $function (@functions) {
@@ -452,20 +455,30 @@ EOF
         }
     }
 
-    print $fh <<EOF;
+    print $fh "\n";
 
+    if ($#$args >= 0) {          # If we have any args (>= 0)
+        print $fh <<EOF;
     uint8_t *pos = in_params;
     size_t remaining = in_params_len;
+EOF
+    }
+
+    print $fh <<EOF;
     uint8_t *result = NULL;
     int ok;
 
     printf("$name: server\\n");
+EOF
+    if ($#$args >= 0) {          # If we have any args (>= 0)
+        print $fh <<EOF;
 
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
         goto fail;
     }
 EOF
+    }
 
     for my $i (0 .. $#$args) {
         my $arg = $args->[$i];
@@ -503,7 +516,7 @@ EOF
 
     my @outputs = grep($_->{is_output}, @$args);
 
-    my $sep1 = ($#outputs < 0) ? ";" : " +";
+    my $sep1 = ($ret_type eq "void") ? ";" : " +";
 
     print $fh <<EOF;
 
@@ -778,6 +791,8 @@ sub output_call
 
     print $fh "\n    $ret_name = $name(\n";
 
+    print $fh "    );\n" if $#$args < 0; # If no arguments, empty arg list
+
     for my $i (0 .. $#$args) {
         my $arg = $args->[$i];
         my $argtype = $arg->{type};     # e.g. int, psa_algorithm_t, or "buffer"
@@ -805,6 +820,8 @@ sub output_signature
     my $final_sep = ($what eq "declaration") ? "\n);" : "\n)";
 
     print $fh "\n$ret_type $name(\n";
+
+    print $fh "    void\n)\n" if $#$args < 0;   # No arguments
 
     for my $i (0 .. $#$args) {
         my $arg = $args->[$i];
@@ -905,16 +922,20 @@ sub get_functions
                         ($type, $name) = ($3, "*" . $4);
                         $ctype = $1 . $type . " ";
                         $is_output = (length($1) == 0) ? 1 : 0;
+                    } elsif ($arg eq "void") {
+                         # we'll just ignore this one
                     } else {
                         die("ARG HELP $arg\n");
                     }
                     #print "$arg => <$type><$ctype><$name><$is_output>\n";
-                    push(@{$f->{args}}, {
-                        "type" => $type,
-                        "ctypename" => $ctype,
-                        "name" => $name,
-                        "is_output" => $is_output,
-                    });
+                    if ($arg ne "void") {
+                        push(@{$f->{args}}, {
+                            "type" => $type,
+                            "ctypename" => $ctype,
+                            "name" => $name,
+                            "is_output" => $is_output,
+                        });
+                    }
                 }
                 $funcs{$func} = $f;
             } else {
@@ -926,7 +947,6 @@ sub get_functions
         } else {
             if ($line =~ /psa_/) {
                 print "NOT PARSED: $line\n";
-exit;
             }
             push(@rebuild, $line);
         }
@@ -938,7 +958,57 @@ exit;
     return %funcs;
 }
 
+sub put_crypto_init_first
+{
+    my ($functions) = @_;
+
+    my $want_first = "psa_crypto_init";
+
+    my $idx = undef;
+    for my $i (0 .. $#$functions) {
+        if ($functions->[$i] eq $want_first) {
+            $idx = $i;
+            last;
+        }
+    }
+
+    if (defined($idx) && $idx != 0) {   # Do nothing if already first
+        splice(@$functions, $idx, 1);
+        unshift(@$functions, $want_first);
+    }
+}
+
 __END__
+/**
+ * \brief Library initialization.
+ *
+ * Applications must call this function before calling any other
+ * function in this module.
+ *
+ * Applications may call this function more than once. Once a call
+ * succeeds, subsequent calls are guaranteed to succeed.
+ *
+ * If the application calls other functions before calling psa_crypto_init(),
+ * the behavior is undefined. Implementations are encouraged to either perform
+ * the operation as if the library had been initialized or to return
+ * #PSA_ERROR_BAD_STATE or some other applicable error. In particular,
+ * implementations should not return a success status if the lack of
+ * initialization may have security implications, for example due to improper
+ * seeding of the random number generator.
+ *
+ * \retval #PSA_SUCCESS \emptydescription
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY \emptydescription
+ * \retval #PSA_ERROR_INSUFFICIENT_STORAGE \emptydescription
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE \emptydescription
+ * \retval #PSA_ERROR_HARDWARE_FAILURE \emptydescription
+ * \retval #PSA_ERROR_CORRUPTION_DETECTED \emptydescription
+ * \retval #PSA_ERROR_INSUFFICIENT_ENTROPY \emptydescription
+ * \retval #PSA_ERROR_STORAGE_FAILURE \emptydescription
+ * \retval #PSA_ERROR_DATA_INVALID \emptydescription
+ * \retval #PSA_ERROR_DATA_CORRUPT \emptydescription
+ */
+psa_status_t psa_crypto_init(void);
+
 /** Calculate the hash (digest) of a message.
  *
  * \note To verify the hash of a message against an
