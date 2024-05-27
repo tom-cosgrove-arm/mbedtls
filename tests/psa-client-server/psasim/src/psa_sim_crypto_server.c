@@ -10,6 +10,8 @@
 #include "psa_functions_codes.h"
 #include "psa_sim_serialise.h"
 
+#include "service.h"
+
 // Returns 1 for success, 0 for failure
 int psa_hash_abort_wrapper(
     uint8_t *in_params, size_t in_params_len,
@@ -650,13 +652,24 @@ fail:
     return 0;       // This shouldn't happen!
 }
 
-int psa_crypto_call(int func,
-                    uint8_t *in_params, size_t in_params_len,
-                    uint8_t **out_params, size_t *out_params_len)
+psa_status_t psa_crypto_call(psa_msg_t msg)
 {
     int ok = 0;
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+
+    int func = msg.type;
+
+    /* XXX TODO: fill in in_params and out_params, using msg */
+    uint8_t *in_params = NULL;
+    size_t in_params_len = 0;
+    uint8_t **out_params = NULL;
+    size_t *out_params_len = 0;
 
     switch (func) {
+        case PSA_CRYPTO_INIT:
+            status = psa_crypto_init();
+            ok = (status == PSA_SUCCESS);
+            break;
         case PSA_HASH_ABORT:
             ok = psa_hash_abort_wrapper(in_params, in_params_len,
                                      out_params, out_params_len);
@@ -691,5 +704,5 @@ int psa_crypto_call(int func,
             break;
     }
 
-    return ok;
+    return ok ? PSA_SUCCESS : PSA_ERROR_GENERIC_ERROR;
 }

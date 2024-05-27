@@ -85,13 +85,24 @@ sub write_server_implementations
 
     print $fh <<EOF;
 
-int psa_crypto_call(int func,
-                    uint8_t *in_params, size_t in_params_len,
-                    uint8_t **out_params, size_t *out_params_len)
+psa_status_t psa_crypto_call(psa_msg_t msg)
 {
     int ok = 0;
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+
+    int func = msg.type;
+
+    /* XXX TODO: fill in in_params and out_params, using msg */
+    uint8_t *in_params = NULL;
+    size_t in_params_len = 0;
+    uint8_t **out_params = NULL;
+    size_t *out_params_len = 0;
 
     switch (func) {
+        case PSA_CRYPTO_INIT:
+            status = psa_crypto_init();
+            ok = (status == PSA_SUCCESS);
+            break;
 EOF
 
     for my $function (@functions) {
@@ -108,7 +119,7 @@ EOF
     print $fh <<EOF;
     }
 
-    return ok;
+    return ok ? PSA_SUCCESS : PSA_ERROR_GENERIC_ERROR;
 }
 EOF
 
@@ -129,6 +140,8 @@ sub server_implementations_header
 
 #include "psa_functions_codes.h"
 #include "psa_sim_serialise.h"
+
+#include "service.h"
 EOF
 }
 
@@ -177,8 +190,30 @@ int psa_crypto_call(int function,
     invec.base = in_params;
     invec.len = in_params_len;
 
-    psa_status_t status = psa_call(handle, function, &invec, 1, NULL, 0);
-    return (status == PSA_SUCCESS);
+    size_t max_receive = 8192;
+    uint8_t *receive = malloc(max_receive);
+    if (receive == NULL) {
+        fprintf(stderr, "FAILED to allocate %u bytes\n", (unsigned)max_receive);
+        exit(1);
+    }
+
+    size_t actual_received = 0;
+
+    psa_outvec outvecs[2];
+    outvecs[0].base = &actual_received;
+    outvecs[0].len = sizeof(actual_received);
+    outvecs[1].base = receive;
+    outvecs[1].len = max_receive;
+
+    psa_status_t status = psa_call(handle, function, &invec, 1, outvecs, 2);
+    if (status != PSA_SUCCESS) {
+        free(receive);
+        return 0;
+    }
+
+    // TODO: put the returned data from psa_call into out_params/out_params_len
+
+    return 1;   // success
 }
 
 psa_status_t psa_crypto_init(void)
