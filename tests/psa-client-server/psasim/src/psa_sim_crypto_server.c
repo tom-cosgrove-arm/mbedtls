@@ -22,8 +22,6 @@ int psa_crypto_init_wrapper(
     uint8_t *result = NULL;
     int ok;
 
-    printf("psa_crypto_init: server\n");
-
     // Now we call the actual target function
 
     status = psa_crypto_init(
@@ -74,8 +72,6 @@ int psa_hash_abort_wrapper(
     size_t remaining = in_params_len;
     uint8_t *result = NULL;
     int ok;
-
-    printf("psa_hash_abort: server\n");
 
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
@@ -145,8 +141,6 @@ int psa_hash_clone_wrapper(
     size_t remaining = in_params_len;
     uint8_t *result = NULL;
     int ok;
-
-    printf("psa_hash_clone: server\n");
 
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
@@ -226,8 +220,6 @@ int psa_hash_compare_wrapper(
     uint8_t *result = NULL;
     int ok;
 
-    printf("psa_hash_compare: server\n");
-
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
         goto fail;
@@ -306,8 +298,6 @@ int psa_hash_compute_wrapper(
     size_t remaining = in_params_len;
     uint8_t *result = NULL;
     int ok;
-
-    printf("psa_hash_compute: server\n");
 
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
@@ -404,8 +394,6 @@ int psa_hash_finish_wrapper(
     uint8_t *result = NULL;
     int ok;
 
-    printf("psa_hash_finish: server\n");
-
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
         goto fail;
@@ -499,8 +487,6 @@ int psa_hash_setup_wrapper(
     uint8_t *result = NULL;
     int ok;
 
-    printf("psa_hash_setup: server\n");
-
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
         goto fail;
@@ -577,8 +563,6 @@ int psa_hash_update_wrapper(
     uint8_t *result = NULL;
     int ok;
 
-    printf("psa_hash_update: server\n");
-
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {
         goto fail;
@@ -654,8 +638,6 @@ int psa_hash_verify_wrapper(
     size_t remaining = in_params_len;
     uint8_t *result = NULL;
     int ok;
-
-    printf("psa_hash_verify: server\n");
 
     ok = psasim_deserialise_begin(&pos, &remaining);
     if (!ok) {

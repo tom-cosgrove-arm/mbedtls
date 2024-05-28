@@ -467,6 +467,9 @@ EOF
     print $fh <<EOF;
     uint8_t *result = NULL;
     int ok;
+EOF
+
+    print $fh <<EOF if $debug;
 
     printf("$name: server\\n");
 EOF
@@ -641,8 +644,14 @@ sub output_client
     uint8_t *result = NULL;
     size_t result_length;
     $ret_type $ret_name = $ret_default;
+EOF
+
+    print $fh <<EOF if $debug;
 
     printf("$name: client\\n");
+EOF
+
+    print $fh <<EOF;
 
     size_t needed = psasim_serialise_begin_needs() +
 EOF

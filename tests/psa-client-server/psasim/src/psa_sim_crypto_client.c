@@ -126,8 +126,6 @@ psa_status_t psa_hash_abort(
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
-    printf("psa_hash_abort: client\n");
-
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_hash_operation_t_needs(*operation);
 
@@ -180,8 +178,6 @@ psa_status_t psa_hash_clone(
     uint8_t *result = NULL;
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
-
-    printf("psa_hash_clone: client\n");
 
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_hash_operation_t_needs(*source_operation) +
@@ -240,8 +236,6 @@ psa_status_t psa_hash_compare(
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
-    printf("psa_hash_compare: client\n");
-
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_algorithm_t_needs(alg) +
         psasim_serialise_buffer_needs(input, input_length) +
@@ -299,8 +293,6 @@ psa_status_t psa_hash_compute(
     uint8_t *result = NULL;
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
-
-    printf("psa_hash_compute: client\n");
 
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_algorithm_t_needs(alg) +
@@ -368,8 +360,6 @@ psa_status_t psa_hash_finish(
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
-    printf("psa_hash_finish: client\n");
-
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_hash_operation_t_needs(*operation) +
         psasim_serialise_buffer_needs(hash, hash_size) +
@@ -435,8 +425,6 @@ psa_status_t psa_hash_setup(
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
-    printf("psa_hash_setup: client\n");
-
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_hash_operation_t_needs(*operation) +
         psasim_serialise_psa_algorithm_t_needs(alg);
@@ -493,8 +481,6 @@ psa_status_t psa_hash_update(
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
-    printf("psa_hash_update: client\n");
-
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_hash_operation_t_needs(*operation) +
         psasim_serialise_buffer_needs(input, input_length);
@@ -550,8 +536,6 @@ psa_status_t psa_hash_verify(
     uint8_t *result = NULL;
     size_t result_length;
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
-
-    printf("psa_hash_verify: client\n");
 
     size_t needed = psasim_serialise_begin_needs() +
         psasim_serialise_psa_hash_operation_t_needs(*operation) +
